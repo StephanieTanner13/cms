@@ -1,0 +1,10 @@
+.contact-heading{
+    display: flex;
+    justify-content: space-between;
+}
+.contact-snippet .list-group-item-heading{
+    margin-top: .8em !important;
+}
+.panel{
+    margin: 0 1em;
+}
