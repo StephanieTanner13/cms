@@ -3,9 +3,9 @@
     <div class="col-xs-12">
         <div class="panel panel-default">
           <div class="panel-heading contact-heading clearfix">
-            <h2>Contact Name</h2>
+            <h2>{{ contact.name }}</h2>
             <div class="pull-left">
-                <img src="Source for Image" alt="Name of Contact" class="img-responsive" style="max-height: 100px;">
+                <img [src]="contact.imageUrl" alt="{{ contact.name }}" class="img-responsive" style="max-height: 100px;">
             </div>
             <div class="pull-right" style="margin-top: 2em;">
                 <button class="btn btn-primary" style="margin-left: .6em;">Edit</button>
@@ -13,8 +13,8 @@
             </div>
           </div>
           <div class="panel-body">
-              <p>Email: <span>Email</span></p>  
-              <p>Phone: <span>Phone Number</span></p>  
+              <p>Email: <span>{{ contact.email }}</span></p>  
+              <p>Phone: <span>{{ contact.phone }}</span></p>  
           </div>
         </div>
     </div>

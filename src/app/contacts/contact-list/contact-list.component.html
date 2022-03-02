@@ -1,22 +1,15 @@
   <div class="row">
     <div class="col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading contact-heading">
-            <h2>Contacts</h2>
-            <button class="btn btn-success">New Contact</button>
-          </div>
-          <div *ngFor="let contact of contacts" class="contact-snippet">
-          <div class="panel-body">
-              <div class="list-group-item clearfix">
-                <div class="pull-left">
-                    <h4 class="list-group-item-heading">{{ contact.name }}</h4>
-                </div>
-                <div class="pull-right">
-                    <img [src]="contact.imageUrl" alt="{{contact.name}}" class="img-responsive" style="max-height: 50px;">
-                </div>
-              </div> 
-          </div>
+      <div class="panel panel-default">
+        <div class="panel-heading contact-heading">
+          <h2>Contacts</h2>
+          <button class="btn btn-success">New Contact</button>
         </div>
-        </div>
+        <!-- this is where each list item goes -->
+        <cms-contact-item
+        *ngFor="let contactEl of contacts"
+        [contact]="contactEl"
+        (contactSelected)="onSelected(contactEl)"></cms-contact-item>
+      </div>
     </div>
   </div>

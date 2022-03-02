@@ -1,0 +1,12 @@
+<a style="color: black;" class="contact-snippet" href="#" (click)="onSelected()">
+    <div class="panel-body">
+        <div class="list-group-item clearfix">
+          <div class="pull-left">
+              <h4 class="list-group-item-heading">{{ contact.name }}</h4>
+          </div>
+          <div class="pull-right">
+              <img [src]="contact.imageUrl" alt="{{contact.name}}" class="img-responsive" style="max-height: 50px;">
+          </div>
+        </div> 
+    </div>
+  </a>
