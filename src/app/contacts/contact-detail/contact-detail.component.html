@@ -8,8 +8,8 @@
                 <img [src]="contact.imageUrl" alt="{{ contact.name }}" class="img-responsive" style="max-height: 100px;">
             </div>
             <div class="pull-right" style="margin-top: 2em;">
-                <button class="btn btn-primary" style="margin-left: .6em;">Edit</button>
-                <button class="btn btn-danger" style="margin-left: .6em;">Delete</button>
+                <a class="btn btn-primary" style="margin-left: .6em;" [routerLink]="['edit']">Edit</a>
+                <a class="btn btn-danger" style="margin-left: .6em;" (click)="onDelete()">Delete</a>
             </div>
           </div>
           <div class="panel-body">
