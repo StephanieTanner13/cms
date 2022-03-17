@@ -1,1 +1,65 @@
-<p>document-edit works!</p>
+<div class="panel panel-default">
+  <div class="panel-body">
+
+    <form id="document-edit" (ngSubmit)="onSubmit(f)" #f="ngForm">
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          <label for="name">Document Title:</label>
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            size="120"
+            max="120"
+            name="name"
+            #name = "ngModel"
+            [ngModel]="document?.name"
+            required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          <label for="description">Document Description:</label>
+          <input
+            type="text"
+            id="description"
+            class="form-control"
+            size="120"
+            max="255"
+            name="description"
+            [ngModel]="document?.description">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 form-group">
+          <label for="url">Document URL:</label>
+          <input
+            type="text"
+            id="url"
+            class="form-control"
+            size="150"
+            max="255"
+            name="url"
+            [ngModel]="document?.url"
+            #url = "ngModel"
+            required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 btn-toolbar">
+          <button class="btn btn-success" type="submit" [disabled]="!f.valid">Save</button>
+          <button class="btn btn-primary" type="button" (click)="onCancel()">Cancel</button>
+        </div>
+      </div>
+      <div class="row help-block alert alert-danger" *ngIf="(!name.valid && name.touched )|| (!url.valid && url.touched)">
+        The Document title and Document URL are required.
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
