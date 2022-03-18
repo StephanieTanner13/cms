@@ -75,7 +75,7 @@ export class ContactEditComponent implements OnInit {
       return true;
     }
 
-    if (newContact.id === this.contact.id) {
+    if (this.contact && newContact.id === this.contact.id) {
       return true;
     }
 
@@ -89,21 +89,20 @@ export class ContactEditComponent implements OnInit {
   }
 
   addToGroup($event: any) {
-    let selectedContact: Contact = $event.dragData;
-    this.invalidGroupContact = this.isInvalidContact(selectedContact);
-    if (this.invalidGroupContact) {
+    const selectedContact: Contact = $event.dragData;
+    const invalidGroupContact = this.isInvalidContact(selectedContact);
+    if (invalidGroupContact) {
       return;
     }
     this.groupContacts.push(selectedContact);
   }
 
-  onRemoveItem(idx: number) {
-    if (idx < 0 || idx > this.groupContacts.length) {
+  onRemoveItem(index: number) {
+    if (index < 0 || index > this.groupContacts.length) {
       return;
     }
 
-    this.groupContacts.splice(idx, 1);
-    this.invalidGroupContact = false;
+    this.groupContacts.splice(index, 1);
   }
 
 }
