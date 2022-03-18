@@ -10,7 +10,7 @@ import {MOCKCONTACTS} from './MOCKCONTACTS';
 export class ContactService {
   contactListChangedEvent = new Subject<Contact[]>();
   contactSelectedEvent = new EventEmitter<Contact>();
-  contactChangedEvent = new EventEmitter<Contact[]>();
+  // contactChangedEvent = new EventEmitter<Contact[]>();
 
   private maxContactID: number;
 
@@ -75,12 +75,14 @@ updateContact(originalContact: Contact, newContact: Contact) {
   }
 
   let index = this.contacts.indexOf(originalContact);
+
   if (index < 0) {
     return;
   }
 
   newContact.id = originalContact.id;
   this.contacts[index] = newContact;
+  console.log(index);
   this.contactListChangedEvent.next(this.contacts.slice());
 }
 }

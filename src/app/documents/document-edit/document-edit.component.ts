@@ -13,7 +13,11 @@ import { NgForm } from '@angular/forms';
 export class DocumentEditComponent implements OnInit {
   originalDocument: Document;
   document: Document;
+  children: Document[] = [];
   editMode: boolean = false;
+  id: string;
+
+  hasChildren: boolean = false;
 
   constructor(
     private documentService: DocumentService,
@@ -23,24 +27,27 @@ export class DocumentEditComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params: Params) => {
-      this.editMode = false;
-      let id = params['id'];
-      if (!id) {
+      this.id = params['id'];
+      if (!this.id) {
         return;
       }
 
-      let originalDocument = this.documentService.getDocument(id);
-      if (!originalDocument) {
+      this.originalDocument = this.documentService.getDocument(this.id);
+      if (!this.originalDocument) {
         return;
       }
 
       this.editMode = true;
-      this.document = JSON.parse(JSON.stringify(originalDocument));
+      this.document = JSON.parse(JSON.stringify(this.originalDocument));
+
+      if(this.document.children){
+        this.children = this.document.children.slice();
+      }
     });
   }
 
   onSubmit(form: NgForm){
-    let newDocument = new Document('', form.value.name, form.value.description, form.value.url, null);
+    let newDocument = new Document(form.value.id, form.value.name, form.value.description, form.value.url, null);
     if (this.editMode === true) {
       this.documentService.updateDocument(this.originalDocument, newDocument);
     } else {

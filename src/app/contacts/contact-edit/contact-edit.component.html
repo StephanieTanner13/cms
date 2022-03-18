@@ -65,7 +65,7 @@
             class="form-control"
             size="150"
             max="255"
-            name="name"
+            name="imageUrl"
             [ngModel]="contact?.imageUrl"
             #image = "ngModel">
         </div>
@@ -89,6 +89,9 @@
           </div>
 
         </div>
+      </div>
+      <div class="alert alert-danger row" *ngIf="name.touched && !name.valid || email.touched && !email.valid ">
+        The name and email are required.
       </div>
 
 
