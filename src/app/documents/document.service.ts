@@ -1,104 +1,123 @@
+
+   
 import { Injectable, EventEmitter } from '@angular/core';
-import { Subject } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 import { Document } from './document.model';
-import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
-  documentListChangedEvent = new Subject<Document[]>();
-  selectedDocumentEvent = new EventEmitter<Document>();
-  // documentChangedEvent = new EventEmitter<Document[]>();
+  documents: Document[] = [];
+  documentSelectedEvent: EventEmitter<Document> = new EventEmitter<Document>();
+  documentChangedEvent: EventEmitter<Document[]> = new EventEmitter<Document[]>();
+  documentListChangedEvent: Subject<Document[]> = new Subject<Document[]>();
+  maxDocumentID: number;
 
-  private maxDocumentId: number;
+  constructor(private http: HttpClient) {
+    this.getDocuments();
+  }
 
-  private documents: Document[] = [];
+  getDocuments(): void {
+    this
+    .http
+    .get('https://fullstack-bbe3a-default-rtdb.firebaseio.com/documents.json')
+    .subscribe((documents: Document[]) => {
+      this.documents = documents;
+      this.maxDocumentID = this.getMaxID();
+      this.documents.sort((lhs: Document, rhs: Document): number => {
+        if (lhs.id < rhs.id) {
+          return -1;
+        } else if (lhs.id === rhs.id) {
+          return 0;
+        } else {
+          return 1;
+        }
+      });
+      this.documentListChangedEvent.next(this.documents.slice());
+    }, (err: any) => {
+      console.error(err);
+    });
+  }
 
-  constructor() {
-    this.documents = MOCKDOCUMENTS;
-    this.maxDocumentId = this.getMaxId();
-   }
-
-  getDocument(id: string): Document{
-    for (let document of this.documents){
-      if (document.id === id){
-        return document;
-      } 
+  getDocument(id: string): Document {
+    if (!this.documents) {
+      return null;
     }
+
+    for (let document of this.documents) {
+      if (document.id === id) {
+        return document;
+      }
+    }
+
     return null;
   }
 
-//   deleteDocument(document: Document) {
-//     if (!document) {
-//        return;
-//     }
-//     const pos = this.documents.indexOf(document);
-//     if (pos < 0) {
-//        return;
-//     }
-//     this.documents.splice(pos, 1);
-//     this.documentChangedEvent.emit(this.documents.slice());
-//  }
-
- getMaxId(): number {
-
-  let maxId = 0;
-
-  for (let document of this.documents){
-    let currentId = +document.id;
-    if (currentId > maxId){
-      maxId = currentId;
+  getMaxID(): number {
+    let maxID = 0;
+    for (let document of this.documents) {
+      let currentID = +document.id;
+      if (currentID > maxID) {
+        maxID = currentID;
+      }
     }
-  }
-  return maxId;
-}
 
- getDocuments(): Document[] {
-  return this.documents.slice();
-}
-
-addDocument(newDocument: Document){
-  if (!newDocument) {
-    return;
+    return maxID;
   }
 
-  this.maxDocumentId++;
-  newDocument.id = (this.maxDocumentId).toString();
-  this.documents.push(newDocument);
-  let documentsListClone = this.documents.slice();
-  this.documentListChangedEvent.next(documentsListClone);
-}
-
-updateDocument(originalDocument: Document, newDocument: Document){
-  if (!originalDocument || !newDocument){
-    return;
-  }
-
-  var pos = this.documents.indexOf(originalDocument);
-  if (pos < 0){
-    return;
-  }
-
-  newDocument.id = originalDocument.id;
-  this.documents[pos] = newDocument;
-  const documentsListClone = this.documents.slice();
-  this.documentListChangedEvent.next(documentsListClone);
-}
-
-  deleteDocument(document: Document) {
+  addDocument(document: Document): void {
     if (!document) {
-       return;
+      return;
     }
-    const pos = this.documents.indexOf(document);
-    if (pos < 0) {
-       return;
+
+    this.maxDocumentID++;
+    document.id = (this.maxDocumentID).toString();
+    this.documents.push(document);
+    this.storeDocuments();
+  }
+
+  updateDocument(originalDocument: Document, newDocument: Document): void {
+    if (!originalDocument || !newDocument) {
+      return;
     }
-    this.documents.splice(pos, 1);
-    
-    this.documentListChangedEvent.next(this.documents.slice());
- }
+
+    let index = this.documents.indexOf(originalDocument);
+    if (index < 0) {
+      return;
+    }
+
+    newDocument.id = originalDocument.id;
+    this.documents[index] = newDocument;
+    this.storeDocuments();
+  }
+
+  deleteDocument(document: Document): void {
+    if (!document) {
+      return;
+    }
+
+    const index = this.documents.indexOf(document);
+    if (index < 0) {
+      return;
+    }
+
+    this.documents.splice(index, 1);
+    this.storeDocuments();
+  }
+
+  storeDocuments(): void {
+    let json = JSON.stringify(this.documents);
+    let header = new HttpHeaders();
+    header.set('Content-Type', 'application/json');
+    this
+    .http
+    .put('https://fullstack-bbe3a-default-rtdb.firebaseio.com/documents.json', json, {
+      headers: header
+    }).subscribe(() => {
+      this.documentListChangedEvent.next((this.documents.slice()));
+    });
+  }
 }
-
-

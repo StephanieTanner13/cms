@@ -23,6 +23,7 @@ import { MessageListComponent } from './messages/message-list/message-list.compo
 import { MessageService } from './messages/message.service';
 import { DropdownDirective } from './shared/dropdown.directive';
 import { WindRefService } from './wind-ref.service';
+import { ContactsFilterPipe } from './contacts/contacts-filter.pipe';
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { WindRefService } from './wind-ref.service';
     DropdownDirective,
     DocumentEditComponent,
     ContactEditComponent,
+    ContactsFilterPipe,
   ],
   imports: [
     BrowserModule,

@@ -11,10 +11,11 @@ import { ContactService } from '../contact.service';
 })
 export class ContactDetailComponent implements OnInit {
   id: string;
-  @Input() contact: Contact;
+  contact: Contact;
 
   
-  constructor(private contactService: ContactService,
+  constructor(
+    private contactService: ContactService,
     private route: ActivatedRoute,
     private router: Router) { }
 

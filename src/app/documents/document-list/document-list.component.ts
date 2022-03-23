@@ -16,13 +16,13 @@ export class DocumentListComponent implements OnInit {
   private subscription: Subscription;
 
   constructor(private documentService: DocumentService) { 
-    this.documents = this.documentService.getDocuments();
+    //this.documents = this.documentService.getDocuments();
   }
 
   ngOnInit(){
-    // this.documentService.documentChangedEvent.subscribe((documents: Document[]) => {
-    //   this.documents = documents.slice();
-    // });
+    this.documentService.documentChangedEvent.subscribe((documents: Document[]) => {
+      this.documents = documents.slice();
+    });
 
     this.subscription = this.documentService.documentListChangedEvent.subscribe(
       (documentsList: Document[]) => {
