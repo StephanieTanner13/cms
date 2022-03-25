@@ -5,16 +5,44 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
 
 // import the routing file to handle the default (index) route
 var index = require('./server/routes/app');
 
 // ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ... 
 //get defined routing files
-var index = require('./server/routes/app');
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents');
+const { assert } = require('console');
+
+
+// establish a connection to the mongo database
+// mongoose.connect('mongodb://localhost:27017/cluster0/cms',
+//    { useNewUrlParser: true }, (err, res) => {
+//       if (err) {
+//          console.log('Connection failed: ' + err);
+//       }
+//       else {
+//          console.log('Connected to database!');
+//       }
+//    }
+// );
+
+const PORT = process.env.PORT || 8080;
+
+mongoose
+    .connect(
+        'mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms?retryWrites=true&w=majority'
+    )
+    .then((res) => {
+        console.log('Connected to Database');
+        app.listen(PORT);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 
 var app = express(); // create an instance of express
 

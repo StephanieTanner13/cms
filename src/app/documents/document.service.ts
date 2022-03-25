@@ -23,7 +23,7 @@ export class DocumentService {
   getDocuments(): void {
     this
     .http
-    .get('https://fullstack-bbe3a-default-rtdb.firebaseio.com/documents.json')
+    .get('http://localhost:3000/documents')
     .subscribe((documents: Document[]) => {
       this.documents = documents;
       this.maxDocumentID = this.getMaxID();
@@ -68,44 +68,83 @@ export class DocumentService {
     return maxID;
   }
 
-  addDocument(document: Document): void {
+
+  addDocument(document: Document) {
     if (!document) {
       return;
     }
 
-    this.maxDocumentID++;
-    document.id = (this.maxDocumentID).toString();
-    this.documents.push(document);
-    this.storeDocuments();
+    // make sure id of the new Document is empty
+    document.id = '';
+
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+    // add to database
+    this.http.post<{ message: string, document: Document }>('http://localhost:3000/documents',
+      document,
+      { headers: headers })
+      .subscribe(
+        (responseData) => {
+          // add new document to documents
+          this.documents.push(responseData.document);
+          this.documents.sort(this.compareDocumentsByID);
+          this.storeDocuments();
+        }
+      );
   }
 
-  updateDocument(originalDocument: Document, newDocument: Document): void {
+
+  updateDocument(originalDocument: Document, newDocument: Document) {
     if (!originalDocument || !newDocument) {
       return;
     }
 
-    let index = this.documents.indexOf(originalDocument);
-    if (index < 0) {
+    const pos = this.documents.findIndex(d => d.id === originalDocument.id);
+
+    if (pos < 0) {
       return;
     }
 
+    // set the id of the new Document to the id of the old Document
     newDocument.id = originalDocument.id;
-    this.documents[index] = newDocument;
-    this.storeDocuments();
+    //newDocument._id = originalDocument._id;
+
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+    // update database
+    this.http.put('http://localhost:3000/documents/' + originalDocument.id,
+      newDocument, { headers: headers })
+      .subscribe(
+        (response: Response) => {
+          this.documents[pos] = newDocument;
+          this.documents.sort(this.compareDocumentsByID);
+          this.storeDocuments();
+        }
+      );
   }
 
-  deleteDocument(document: Document): void {
+
+  deleteDocument(document: Document) {
+
     if (!document) {
       return;
     }
 
-    const index = this.documents.indexOf(document);
-    if (index < 0) {
+    const pos = this.documents.findIndex(d => d.id === document.id);
+
+    if (pos < 0) {
       return;
     }
 
-    this.documents.splice(index, 1);
-    this.storeDocuments();
+    // delete from database
+    this.http.delete('http://localhost:3000/documents/' + document.id)
+      .subscribe(
+        (response: Response) => {
+          this.documents.splice(pos, 1);
+          this.documents.sort(this.compareDocumentsByID);
+          this.storeDocuments();
+        }
+      );
   }
 
   storeDocuments(): void {
@@ -114,10 +153,20 @@ export class DocumentService {
     header.set('Content-Type', 'application/json');
     this
     .http
-    .put('https://fullstack-bbe3a-default-rtdb.firebaseio.com/documents.json', json, {
+    .put('http://localhost:3000/documents/', json, {
       headers: header
     }).subscribe(() => {
       this.documentListChangedEvent.next((this.documents.slice()));
     });
+  }
+
+  compareDocumentsByID(lhs: Document, rhs: Document): number {
+    if (lhs.id < rhs.id) {
+      return -1;
+    } else if (lhs.id === rhs.id) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
 }
