@@ -15,11 +15,11 @@ var index = require('./server/routes/app');
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents');
-const { assert } = require('console');
+//const { assert } = require('console');
 
 
 //establish a connection to the mongo database
-mongoose.connect('mongodb://localhost:27017/cluster0/cms',
+mongoose.connect('mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms',
    { useNewUrlParser: true }, (err, res) => {
       if (err) {
          console.log('Connection failed: ' + err);
