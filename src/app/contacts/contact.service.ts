@@ -1,8 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Subject } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 import { Contact } from './contact.model';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,19 +19,13 @@ export class ContactService {
   }
 
   getContacts(): void {
-    this.http.get('https://fullstack-bbe3a-default-rtdb.firebaseio.com/contacts.json')
-    .subscribe((contacts: Contact[]) => {
-      this.contacts = contacts;
+    this
+    .http
+    .get<{message: string, contacts: Contact[]}>('http://localhost:3000/contacts')
+    .subscribe((response: any) => {
+      this.contacts = response.contacts;
       this.maxContactID = this.getMaxID();
-      this.contacts.sort((lhs: Contact, rhs: Contact): number => {
-        if (lhs.id < rhs.id) {
-          return -1;
-        } else if (lhs.id === rhs.id) {
-          return 0;
-        } else {
-          return 1;
-        }
-      });
+      this.contacts.sort(compareContactsByID);
       this.contactListChangedEvent.next(this.contacts.slice());
     }, (err: any) => {
       console.error(err);
@@ -39,6 +33,10 @@ export class ContactService {
   }
 
   getContact(id: string): Contact {
+    if (!this.contacts) {
+      return null;
+    }
+
     for (let contact of this.contacts) {
       if (contact.id === id) {
         return contact;
@@ -65,10 +63,19 @@ export class ContactService {
       return;
     }
 
-    this.maxContactID++;
-    contact.id = (this.maxContactID).toString();
-    this.contacts.push(contact);
-    this.storeContacts();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    contact.id = '';
+
+    this.http
+    .post<{message: string, contact: Contact}>('http://localhost:3000/contacts', contact, {headers: headers})
+    .subscribe((response: any) => {
+      this.contacts.push(response.contact);
+      this.contacts.sort(compareContactsByID);
+      this.contactChangedEvent.next(this.contacts.slice());
+    });
   }
 
   updateContact(originalContact: Contact, newContact: Contact): void {
@@ -81,9 +88,17 @@ export class ContactService {
       return;
     }
 
-    newContact.id = originalContact.id;
-    this.contacts[index] = newContact;
-    this.storeContacts();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    const strContact = JSON.stringify(newContact);
+
+    this.http
+    .put<{message: string}>(`http://localhost:3000/contacts/${originalContact.id}`, strContact, {headers: headers})
+    .subscribe((response: any) => {
+      this.getContacts();
+    });
   }
 
   deleteContact(contact: Contact): void {
@@ -96,8 +111,10 @@ export class ContactService {
       return;
     }
 
-    this.contacts.splice(index, 1);
-    this.storeContacts();
+    this.http.delete(`http://localhost:3000/contacts/${contact.id}`)
+    .subscribe((contacts: Contact[]) => {
+      this.getContacts();
+    })
   }
 
   storeContacts(): void {
@@ -106,10 +123,20 @@ export class ContactService {
     header.set('Content-Type', 'application/json');
     this
     .http
-    .put('https://fullstack-bbe3a-default-rtdb.firebaseio.com/contacts.json', json, {
+    .put<{message: string}>('http://localhost:3000/contacts', json, {
       headers: header
     }).subscribe(() => {
-      this.contactListChangedEvent.next((this.contacts.slice()));
+      this.contactListChangedEvent.next(this.contacts.slice());
     });
+  }
+}
+
+function compareContactsByID(lhs: Contact, rhs: Contact): number {
+  if (lhs.id < rhs.id) {
+    return -1;
+  } else if (lhs.id === rhs.id) {
+    return 0;
+  } else {
+    return 1;
   }
 }

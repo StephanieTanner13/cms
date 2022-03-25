@@ -8,7 +8,7 @@ import { Message } from './message.model';
 })
 export class MessageService {
   messages: Message[] = [];
-  messageChangedEvent: EventEmitter<Message[]> = new EventEmitter<Message[]>();
+  messagesChangedEvent: EventEmitter<Message[]> = new EventEmitter<Message[]>();
   maxMessageID: number;
 
   constructor(private http: HttpClient) { 
@@ -22,26 +22,22 @@ export class MessageService {
   initMessages(): void {
     this
     .http
-    .get('https://fullstack-bbe3a-default-rtdb.firebaseio.com/messages.json')
-    .subscribe((messages: Message[]) => {
-      this.messages = messages;
+    .get<{message: string, messages: Message[]}>('http://localhost:3000/messages')
+    .subscribe((response: any) => {
+      this.messages = response.messages;
       this.maxMessageID = this.getMaxID();
-      this.messages.sort((lhs: Message, rhs: Message): number => {
-        if (lhs.id < rhs.id) {
-          return -1;
-        } else if (lhs.id === rhs.id) {
-          return 0;
-        } else {
-          return 1;
-        }
-      });
-      this.messageChangedEvent.next(this.messages.slice());
+      this.messages.sort(compareMessagesByID);
+      this.messagesChangedEvent.next(this.messages.slice());
     }, (err: any) => {
       console.error(err);
     });
   }
 
   getMessage(id: string): Message {
+    if (!this.messages) {
+      return null;
+    }
+
     for (let message of this.messages) {
       if (message.id === id) {
         return message;
@@ -64,8 +60,23 @@ export class MessageService {
   }
 
   addMessage(message: Message): void {
-    this.messages.push(message);
-    this.storeMessages();
+    if (!message) {
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    message.id = '';
+
+    this.http
+    .post<{message: string, newMessage: Message}>('http://localhost:3000/messages', message, {headers: headers})
+    .subscribe((response: any) => {
+      this.messages.push(response.newMessage);
+      this.messages.sort(compareMessagesByID);
+      this.messagesChangedEvent.next(this.messages.slice());
+    });
   }
 
   storeMessages(): void {
@@ -74,10 +85,20 @@ export class MessageService {
     header.set('Content-Type', 'application/json');
     this
     .http
-    .put('https://fullstack-bbe3a-default-rtdb.firebaseio.com/messages.json', json, {
+    .put<{message: string}>('http://localhost:3000/messages', json, {
       headers: header
     }).subscribe(() => {
-      this.messageChangedEvent.next((this.messages.slice()));
+      this.messagesChangedEvent.next(this.messages.slice());
     });
+  }
+}
+
+function compareMessagesByID(lhs: Message, rhs: Message): number {
+  if (lhs.id < rhs.id) {
+    return -1;
+  } else if (lhs.id === rhs.id) {
+    return 0;
+  } else {
+    return 1;
   }
 }

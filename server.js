@@ -18,31 +18,31 @@ const documentsRoutes = require('./server/routes/documents');
 const { assert } = require('console');
 
 
-// establish a connection to the mongo database
-// mongoose.connect('mongodb://localhost:27017/cluster0/cms',
-//    { useNewUrlParser: true }, (err, res) => {
-//       if (err) {
-//          console.log('Connection failed: ' + err);
-//       }
-//       else {
-//          console.log('Connected to database!');
-//       }
-//    }
-// );
+//establish a connection to the mongo database
+mongoose.connect('mongodb://localhost:27017/cluster0/cms',
+   { useNewUrlParser: true }, (err, res) => {
+      if (err) {
+         console.log('Connection failed: ' + err);
+      }
+      else {
+         console.log('Connected to database!');
+      }
+   }
+);
 
-const PORT = process.env.PORT || 8080;
+// const PORT = process.env.PORT || 8080;
 
-mongoose
-    .connect(
-        'mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms?retryWrites=true&w=majority'
-    )
-    .then((res) => {
-        console.log('Connected to Database');
-        app.listen(PORT);
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+// mongoose
+//     .connect(
+//         'mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms'
+//     )
+//     .then((res) => {
+//         console.log('Connected to Database');
+//         app.listen(port);
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
 
 var app = express(); // create an instance of express
 
