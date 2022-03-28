@@ -19,7 +19,7 @@ const documentsRoutes = require('./server/routes/documents');
 
 
 //establish a connection to the mongo database
-mongoose.connect('mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms',
+mongoose.connect('mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
    { useNewUrlParser: true }, (err, res) => {
       if (err) {
          console.log('Connection failed: ' + err);

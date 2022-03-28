@@ -28,6 +28,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
   const maxContactId = sequenceGenerator.nextId("contacts");
+  //const maxContactId = "108";
 
   const contact = new Contact({
     id: maxContactId,

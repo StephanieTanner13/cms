@@ -23,19 +23,11 @@ export class DocumentService {
   getDocuments(): void {
     this
     .http
-    .get('http://localhost:3000/documents')
-    .subscribe((documents: Document[]) => {
-      this.documents = documents;
+    .get<{message: string, documents: Document[]}>('http://localhost:3000/documents')
+    .subscribe((response: any) => {
+      this.documents = response.documents;
       this.maxDocumentID = this.getMaxID();
-      this.documents.sort((lhs: Document, rhs: Document): number => {
-        if (lhs.id < rhs.id) {
-          return -1;
-        } else if (lhs.id === rhs.id) {
-          return 0;
-        } else {
-          return 1;
-        }
-      });
+      this.documents.sort(compareDocumentsByID);
       this.documentListChangedEvent.next(this.documents.slice());
     }, (err: any) => {
       console.error(err);
@@ -68,83 +60,63 @@ export class DocumentService {
     return maxID;
   }
 
-
-  addDocument(document: Document) {
+  addDocument(document: Document): void {
     if (!document) {
       return;
     }
 
-    // make sure id of the new Document is empty
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
     document.id = '';
 
-    const headers = new HttpHeaders({'Content-Type': 'application/json'});
-
-    // add to database
-    this.http.post<{ message: string, document: Document }>('http://localhost:3000/documents',
-      document,
-      { headers: headers })
-      .subscribe(
-        (responseData) => {
-          // add new document to documents
-          this.documents.push(responseData.document);
-          this.documents.sort(this.compareDocumentsByID);
-          this.storeDocuments();
-        }
-      );
+    this.http
+    .post<{message: string, document: Document}>('http://localhost:3000/documents', document, {headers: headers})
+    .subscribe((response: any) => {
+      this.documents.push(response.document);
+      this.documents.sort(compareDocumentsByID);
+      this.documentChangedEvent.next(this.documents.slice());
+    });
   }
 
-
-  updateDocument(originalDocument: Document, newDocument: Document) {
+  updateDocument(originalDocument: Document, newDocument: Document): void {
     if (!originalDocument || !newDocument) {
       return;
     }
 
-    const pos = this.documents.findIndex(d => d.id === originalDocument.id);
-
-    if (pos < 0) {
+    let index = this.documents.indexOf(originalDocument);
+    if (index < 0) {
       return;
     }
 
-    // set the id of the new Document to the id of the old Document
-    newDocument.id = originalDocument.id;
-    //newDocument._id = originalDocument._id;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
 
-    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+    const strDocument = JSON.stringify(newDocument);
 
-    // update database
-    this.http.put('http://localhost:3000/documents/' + originalDocument.id,
-      newDocument, { headers: headers })
-      .subscribe(
-        (response: Response) => {
-          this.documents[pos] = newDocument;
-          this.documents.sort(this.compareDocumentsByID);
-          this.storeDocuments();
-        }
-      );
+    this.http
+    .put<{message: string}>(`http://localhost:3000/documents/${originalDocument.id}`, strDocument, {headers: headers})
+    .subscribe((response: any) => {
+      this.getDocuments();
+    });
   }
 
-
-  deleteDocument(document: Document) {
-
+  deleteDocument(document: Document): void {
     if (!document) {
       return;
     }
 
-    const pos = this.documents.findIndex(d => d.id === document.id);
-
-    if (pos < 0) {
+    const index = this.documents.indexOf(document);
+    if (index < 0) {
       return;
     }
 
-    // delete from database
-    this.http.delete('http://localhost:3000/documents/' + document.id)
-      .subscribe(
-        (response: Response) => {
-          this.documents.splice(pos, 1);
-          this.documents.sort(this.compareDocumentsByID);
-          this.storeDocuments();
-        }
-      );
+    this.http.delete<{message: String}>(`http://localhost:3000/documents/${document.id}`)
+    .subscribe((response: any) => {
+      this.getDocuments();
+    })
   }
 
   storeDocuments(): void {
@@ -153,20 +125,20 @@ export class DocumentService {
     header.set('Content-Type', 'application/json');
     this
     .http
-    .put('http://localhost:3000/documents/', json, {
+    .put<{message: string}>('http://localhost:3000/documents', json, {
       headers: header
     }).subscribe(() => {
-      this.documentListChangedEvent.next((this.documents.slice()));
+      this.documentChangedEvent.next(this.documents.slice());
     });
   }
+}
 
-  compareDocumentsByID(lhs: Document, rhs: Document): number {
-    if (lhs.id < rhs.id) {
-      return -1;
-    } else if (lhs.id === rhs.id) {
-      return 0;
-    } else {
-      return 1;
-    }
+function compareDocumentsByID(lhs: Document, rhs: Document): number {
+  if (lhs.id < rhs.id) {
+    return -1;
+  } else if (lhs.id === rhs.id) {
+    return 0;
+  } else {
+    return 1;
   }
 }
