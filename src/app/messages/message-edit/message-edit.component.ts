@@ -21,7 +21,6 @@ export class MessageEditComponent implements OnInit {
   }
 
   onSendMessage(){
-    
     const subjectValue = this.subjectInputRef.nativeElement.value;
     const msgValue = this.msgTextInputRef.nativeElement.value;
     const id = "1";

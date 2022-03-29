@@ -31,15 +31,15 @@ router.post('/', (req, res, next) => {
   const message = new Message({
     id: maxMessageId,
     subject: req.body.subject,
-    msgText: req.body.message,
-    sender: '3'
+    msgText: req.body.msgText,
+    sender: "null"
   });
 
   message.save()
     .then(createdMessage => {
       res.status(201).json({
         message: 'Message added successfully',
-        newMessage: createdMessage
+        message: createdMessage
       });
     })
     .catch(error => {
@@ -50,14 +50,15 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
   Message.findOne({ id: req.params.id })
     .then(message => {
-      message.subject = req.body.subject;
-      message.msgText = req.body.message;
-      message.sender = '3';
+      message.subject = req.body.subject,
+      message.msgText = req.body.message,
+      message.sender = null;
 
       Message.updateOne({ id: req.params.id }, message)
         .then(result => {
           res.status(204).json({
-            message: 'Message updated successfully'})
+            message: 'Document updated successfully'
+          })
         })
         .catch(error => {
           returnError(res, error);
