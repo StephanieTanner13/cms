@@ -27,13 +27,12 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
   const maxMessageId = sequenceGenerator.nextId("messages");
-  //const maxMessageId = "108";
 
   const message = new Message({
     id: maxMessageId,
-    name: req.body.name,
-    description: req.body.description,
-    url: req.body.url
+    subject: req.body.subject,
+    msgText: req.body.message,
+    sender: '3'
   });
 
   message.save()
@@ -51,9 +50,9 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
   Message.findOne({ id: req.params.id })
     .then(message => {
-      message.name = req.body.name;
-      message.description = req.body.description;
-      message.url = req.body.url;
+      message.subject = req.body.subject;
+      message.msgText = req.body.message;
+      message.sender = '3';
 
       Message.updateOne({ id: req.params.id }, message)
         .then(result => {

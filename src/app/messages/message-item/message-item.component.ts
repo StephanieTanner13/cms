@@ -10,13 +10,22 @@ import { ContactService } from '../../contacts/contact.service';
 })
 export class MessageItemComponent implements OnInit {
   @Input() message: Message;
-  messageSender: string;
+  messageSender: string = '';
 
   constructor(private contactService: ContactService) { }
 
   ngOnInit(){
-    const contact: Contact = this.contactService.getContact(this.message.sender);
+    //console.log(this.message.sender);
+    var sender = this.message.sender;
+    console.log(sender);
+
+    let contact: Contact = this.contactService.getContact(sender);
+     console.log(contact);
+    if (!contact) {
+      this.messageSender = '[deleted]';
+    } else {
       this.messageSender = contact.name;
+    }
   }
 
 }

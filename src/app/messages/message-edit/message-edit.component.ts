@@ -10,8 +10,9 @@ import { MessageService } from '../message.service';
 export class MessageEditComponent implements OnInit {
   @ViewChild('subjectInput', {static: true}) subjectInputRef: ElementRef;
   @ViewChild('msgTextInput', {static: true}) msgTextInputRef: ElementRef;
+  message: Message;
 
-  currentSender:string = 'Stephanie';
+  currentSender:string = '2';
 
 
   constructor( private messageService: MessageService) { }
@@ -20,6 +21,7 @@ export class MessageEditComponent implements OnInit {
   }
 
   onSendMessage(){
+    
     const subjectValue = this.subjectInputRef.nativeElement.value;
     const msgValue = this.msgTextInputRef.nativeElement.value;
     const id = "1";
@@ -29,7 +31,7 @@ export class MessageEditComponent implements OnInit {
   }
 
   onClear(){
-   this.subjectInputRef.nativeElement.value = '';
-  this.msgTextInputRef.nativeElement.value = '';
+    this.subjectInputRef.nativeElement.value = '';
+    this.msgTextInputRef.nativeElement.value = '';
   }
 }

@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const documentSchema = new Schema(
+const documentSchema =  mongoose.Schema(
     {
         id: {
             type: String,
@@ -16,7 +15,7 @@ const documentSchema = new Schema(
             required: true,
         },
         children: [{
-            type: Array,
+            type: {type: [mongoose.Schema.Types.ObjectId], ref: 'Document'},
         }],
     },
 );

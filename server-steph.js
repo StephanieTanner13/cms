@@ -1,22 +1,42 @@
 // Get dependencies
-let express = require('express');
-let path = require('path');
-let http = require('http');
-let mongoose = require('mongoose');
-
-let bodyParser = require('body-parser');
-let cookieParser = require('cookie-parser');
-let logger = require('morgan');
+var express = require('express');
+var path = require('path');
+var http = require('http');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var mongoose = require('mongoose');
 
 // import the routing file to handle the default (index) route
-let index = require('./server/routes/app');
-const messagesRoutes = require('./server/routes/messages');
-const contactsRoutes = require('./server/routes/contacts');
+var index = require('./server/routes/app');
+
+// ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ... 
+//get defined routing files
+const messageRoutes = require('./server/routes/messages');
+const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents');
+//const { assert } = require('console');
 
-// ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ...
 
-let app = express(); // create an instance of express
+//establish a connection to the mongo database
+
+
+// const PORT = process.env.PORT || 8080;
+
+// mongoose
+//     .connect(
+//         'mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms'
+//     )
+//     .then((res) => {
+//         console.log('Connected to Database');
+//         app.listen(port);
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
+
+var app = express(); // create an instance of express
+
 
 // Tell express to use the following parsers for POST data
 app.use(bodyParser.json());
@@ -47,30 +67,28 @@ app.use(express.static(path.join(__dirname, 'dist/cms')));
 
 // Tell express to map the default route ('/') to the index route
 app.use('/', index);
-app.use('/messages', messagesRoutes);
-app.use('/contacts', contactsRoutes);
-app.use('/documents', documentsRoutes);
 
-//For 404
-app.use((req, res, next) => {
-  res.render('index')
-});
-
-
-// establish a connection to the mongo database
-mongoose.connect('mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms?retryWrites=true&w=majority',
-  { useNewUrlParser: true }, (err, res) => {
-    if (err) {
-      console.log('Connection failed: ' + err);
-    }
-    else {
-      console.log('Connected to database!');
-    }
-  }
-);
-
+//tell express to map all other non-defined routes back to the index page
+//catch 404 and forward error handler
+app.use(function(req, res, next) {
+    res.render("index");
+})
 
 // ... ADD YOUR CODE TO MAP YOUR URL'S TO ROUTING FILES HERE ...
+app.use('/messages', messageRoutes);
+app.use('/contacts', contactRoutes);
+app.use('/documents', documentsRoutes);
+
+mongoose.connect('mongodb+srv://Stephanie:mFtKj6nKLfV3iyQG@cluster0.f4ift.mongodb.net/cms?retryWrites=true&w=majority',
+   { useNewUrlParser: true }, (err, res) => {
+      if (err) {
+         console.log('Connection failed: ' + err);
+      }
+      else {
+         console.log('Connected to database!');
+      }
+   }
+);
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {

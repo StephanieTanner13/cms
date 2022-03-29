@@ -7,10 +7,12 @@
     <input
     type="text"
     id="subject"
+    name="subject"
     class="form-control"
     size="120"
     max="120"
-    #subjectInput>
+    #subjectInput= "ngModel"
+    [ngModel]="message?.subject">
     </div>
     
     <div class="col-sm-12 form-group">
@@ -18,10 +20,13 @@
     <input
     type="text"
     id="message"
+    name="message"
     class="form-control"
     max="255"
     size="120"
-    #msgTextInput>
+    #msgTextInput = "ngModel"
+    [ngModel]="message?.msgText"
+    name="msgTextInput">
     </div>
     </div>
     <div class="row">

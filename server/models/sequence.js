@@ -1,11 +1,10 @@
 
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-let schema = new Schema({
-  maxDocumentId: {type: Number, required: true},
-  maxMessageId: {type: Number, required: true},
-  maxContactId: {type: Number, required: true}
+let schema = mongoose.Schema({
+  maxDocumentId: {type: String, required: true},
+  maxMessageId: {type: String, required: true},
+  maxContactId: {type: String, required: true}
 });
 
 module.exports = mongoose.model('Sequence', schema);

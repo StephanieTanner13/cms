@@ -85,10 +85,13 @@ export class DocumentService {
       return;
     }
 
-    let index = this.documents.indexOf(originalDocument);
-    if (index < 0) {
+    const pos = this.documents.findIndex(d => d.id === originalDocument.id);
+
+    if(pos < 0) {
       return;
     }
+
+    newDocument.id = originalDocument.id;
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'

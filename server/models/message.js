@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const messageSchema = new Schema(
+const messageSchema = mongoose.Schema(
     {
         id: {
             type: String,
@@ -15,9 +14,8 @@ const messageSchema = new Schema(
             required: true,
         },
         sender: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Contact',
-        }
+            type: {type: [mongoose.Schema.Types.ObjectId], ref: 'Contact'},
+        },
     },
 );
 
